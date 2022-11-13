@@ -1,24 +1,14 @@
-'use strict';
-
-let banco = []; //// banco de dados
-
-
-
-document.querySelector(".todo__title").addEventListener("click", escolherNome); // pegando a classe da criação da lista
-
-function escolherNome() {
-    const nome = prompt("Digite seu nome!")
-    document.querySelector(".todo__title").innerHTML = "Seja bem Vindo: " + nome;
-}
+let banco = [];
 
 const getBanco = () => JSON.parse(localStorage.getItem('todoList')) ?? [];
-const setBanco = (banco) => localStorage.setItem('todoList', JSON.stringify(banco)); //isso eu não sei usat mas é o JSON
+const setBanco = (banco) => localStorage.setItem('todoList', JSON.stringify(banco));
+const nome = JSON.parse(localStorage.getItem("nome"))
 
 const criarItem = (tarefa, status, indice) => {
     const item = document.createElement('label');
-    item.classList.add('todo__item');// PARTE DO HTML DENTRO DO ARRAY
+    item.classList.add('todo__item');
     item.innerHTML = `
-        <input type="checkbox" ${status} data-indice=${indice}> 
+        <input type="checkbox" ${status} data-indice=${indice}>
         <div>${tarefa}</div>
         <input type="button" value="X" data-indice=${indice}>
     `;
@@ -78,5 +68,18 @@ const clickItem = (evento) => {
 
 document.getElementById('newItem').addEventListener('keypress', inserirItem);
 document.getElementById('todoList').addEventListener('click', clickItem);
+
+
+document.getElementById("txtInicial").addEventListener("click", inserindoNome)
+
+function inserindoNome() {
+    const nome = prompt("Informe seu nome!!")
+
+    localStorage.setItem("nome", JSON.stringify(nome))
+    document.getElementById("txtInicial").innerHTML = "Lista de Tarefas de " + nome
+    console.log(nome)
+}
+
+document.getElementById("txtInicial").innerHTML = "Lista de Tarefas de " + nome
 
 atualizarTela();
