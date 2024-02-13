@@ -1,9 +1,10 @@
+/* Definição das variáveis de cor */
 :root {
-
     --primary-color: #0bb6eb;
     --secondary-color: #0F0F0B;
 }
 
+/* Estilos gerais */
 * {
     margin: 0;
     padding: 0;
@@ -19,6 +20,7 @@ body {
     font: bold 2rem 'Open Sans', sans-serif;
 }
 
+/* Estilos da lista de tarefas */
 .todo {
     display: flex;
     width: 50vw;
@@ -69,7 +71,7 @@ body {
     color: var(--primary-color);
 }
 
-
+/* Estilos dos elementos da lista de tarefas */
 .todo__item>input[type='text'] {
     border: none;
     width: 80%;
@@ -83,11 +85,12 @@ body {
     font: inherit;
 }
 
-
+/* Estilo para quando uma tarefa é marcada como concluída */
 .todo__item>input[type='checkbox']:checked+div {
     text-decoration: line-through;
 }
 
+/* Estilos para o novo item de tarefa */
 .todo__new-item {
     display: flex;
     background-color: #fff59d;
@@ -111,4 +114,18 @@ body {
 .todo__new-item>input::placeholder {
     font-style: italic;
     font-weight: normal;
+}
+
+/* Adiciona estilos para o botão de adicionar tarefa */
+.todo__new-item #adicionarTarefa {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+.todo__new-item #adicionarTarefa:hover {
+    background-color: #333; /* Altere a cor do hover conforme necessário */
 }
