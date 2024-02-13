@@ -1,85 +1,50 @@
-let banco = [];
+const { Pool } = require('pg');
 
-const getBanco = () => JSON.parse(localStorage.getItem('todoList')) ?? [];
-const setBanco = (banco) => localStorage.setItem('todoList', JSON.stringify(banco));
-const nome = JSON.parse(localStorage.getItem("nome"))
+// Configuração do pool de conexões com o banco de dados PostgreSQL
+const pool = new Pool({
+    connectionString: 'postgresql://default:kaDLqePyI4b9@ep-crimson-poetry-a4wbybo0.us-east-1.aws.neon.tech:5432/verceldb',
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
 
-const criarItem = (tarefa, status, indice) => {
-    const item = document.createElement('label');
-    item.classList.add('todo__item');
-    item.innerHTML = `
-        <input type="checkbox" ${status} data-indice=${indice}>
-        <div>${tarefa}</div>
-        <input type="button" value="X" data-indice=${indice}>
-    `;
-    document.getElementById('todoList').appendChild(item);
-}
+// Função para obter as tarefas do banco de dados
+const getTarefas = async () => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM tarefas');
+    client.release();
+    return result.rows;
+  } catch (error) {
+    console.error('Erro ao obter tarefas:', error);
+    throw error;
+  }
+};
 
-const limparTarefas = () => {
-    const todoList = document.getElementById('todoList');
-    while (todoList.firstChild) {
-        todoList.removeChild(todoList.lastChild);
+// Função para adicionar uma nova tarefa ao banco de dados
+const adicionarTarefa = async (tarefa) => {
+  try {
+    const client = await pool.connect();
+    await client.query('INSERT INTO tarefas (tarefa, status) VALUES ($1, $2)', [tarefa, '']);
+    client.release();
+  } catch (error) {
+    console.error('Erro ao adicionar tarefa:', error);
+    throw error;
+  }
+};
+
+// Event listener para o botão de adicionar tarefa
+document.getElementById('adicionarTarefa').addEventListener('click', () => {
+    const texto = document.getElementById('newItem').querySelector('input[type="text"]').value.trim();
+    if (texto !== '') {
+        adicionarTarefa(texto)
+            .then(() => {
+                console.log('Tarefa adicionada com sucesso.');
+                atualizarTela();
+                document.getElementById('newItem').querySelector('input[type="text"]').value = ''; // Limpar campo de texto
+            })
+            .catch((err) => {
+                console.error('Erro ao adicionar tarefa:', err);
+            });
     }
-}
-
-const atualizarTela = () => {
-    limparTarefas();
-    const banco = getBanco();
-    banco.forEach((item, indice) => criarItem(item.tarefa, item.status, indice));
-}
-
-const inserirItem = (evento) => {
-    const tecla = evento.key;
-    const texto = evento.target.value;
-    if (tecla === 'Enter') {
-        const banco = getBanco();
-        banco.push({ 'tarefa': texto, 'status': '' });
-        setBanco(banco);
-        atualizarTela();
-        evento.target.value = '';
-    }
-}
-
-const removerItem = (indice) => {
-    const banco = getBanco();
-    banco.splice(indice, 1);
-    setBanco(banco);
-    atualizarTela();
-}
-
-const atualizarItem = (indice) => {
-    const banco = getBanco();
-    banco[indice].status = banco[indice].status === '' ? 'checked' : '';
-    setBanco(banco);
-    atualizarTela();
-}
-
-const clickItem = (evento) => {
-    const elemento = evento.target;
-    console.log(elemento.type);
-    if (elemento.type === 'button') {
-        const indice = elemento.dataset.indice;
-        removerItem(indice);
-    } else if (elemento.type === 'checkbox') {
-        const indice = elemento.dataset.indice;
-        atualizarItem(indice);
-    }
-}
-
-document.getElementById('newItem').addEventListener('keypress', inserirItem);
-document.getElementById('todoList').addEventListener('click', clickItem);
-
-
-document.getElementById("txtInicial").addEventListener("click", inserindoNome)
-
-function inserindoNome() {
-    const nome = prompt("Informe seu nome!!")
-
-    localStorage.setItem("nome", JSON.stringify(nome))
-    document.getElementById("txtInicial").innerHTML = "Lista de Tarefas de " + nome
-    console.log(nome)
-}
-
-document.getElementById("txtInicial").innerHTML = "Lista de Tarefas de " + nome
-
-atualizarTela();
+});
